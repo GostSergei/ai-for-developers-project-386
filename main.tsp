@@ -2,7 +2,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service(#{ title: "Call Calendar API" })
+@service({ title: "Call Calendar API" })
 namespace CallCalendar;
 
 // ---------- Shared models ----------
@@ -240,3 +240,120 @@ namespace Admin {
   @doc("Предстоящие встречи: все брони всех типов, startsAt >= now, по возрастанию.")
   op upcoming(): BookingsList;
 }
+
+// ---------- Examples (для Prism mock: реалистичная статичная выдача) ----------
+
+@@example(CallCalendar.EventType, #{
+  id: "consultation",
+  name: "Консультация",
+  description: "Разбор проекта",
+  duration: 30
+});
+
+@@example(CallCalendar.Slot, #{
+  startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"),
+  status: CallCalendar.SlotStatus.free
+});
+
+@@example(CallCalendar.DaySlots, #{
+  date: plainDate.fromISO("2026-08-18"),
+  eventType: #{
+    id: "consultation",
+    name: "Консультация",
+    description: "Разбор проекта",
+    duration: 30
+  },
+  slots: #[
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:30:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T10:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T10:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T11:00:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T11:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T12:00:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T12:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T13:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T13:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T14:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T14:30:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T15:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T15:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T16:00:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T16:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T17:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T17:30:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T18:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T18:30:00Z"), status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T19:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T19:30:00Z"), status: CallCalendar.SlotStatus.free }
+  ]
+});
+
+@@example(CallCalendar.Booking, #{
+  id: 12,
+  eventTypeId: "consultation",
+  eventTypeName: "Консультация",
+  duration: 30,
+  guestName: "Иван Петров",
+  guestContact: "ivan@example.com",
+  startsAt: utcDateTime.fromISO("2026-08-25T08:00:00Z"),
+  endsAt: utcDateTime.fromISO("2026-08-25T08:30:00Z")
+});
+
+@@example(CallCalendar.BookingsList, #{
+  bookings: #[
+    #{
+      id: 12,
+      eventTypeId: "consultation",
+      eventTypeName: "Консультация",
+      duration: 30,
+      guestName: "Иван Петров",
+      guestContact: "ivan@example.com",
+      startsAt: utcDateTime.fromISO("2026-08-25T08:00:00Z"),
+      endsAt: utcDateTime.fromISO("2026-08-25T08:30:00Z")
+    },
+    #{
+      id: 13,
+      eventTypeId: "meeting",
+      eventTypeName: "Встреча",
+      duration: 60,
+      guestName: "Мария Иванова",
+      guestContact: "maria@example.com",
+      startsAt: utcDateTime.fromISO("2026-09-02T10:00:00Z"),
+      endsAt: utcDateTime.fromISO("2026-09-02T11:00:00Z")
+    }
+  ]
+});
+
+@@example(CallCalendar.AdminSlot, #{
+  startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"),
+  status: CallCalendar.SlotStatus.booked,
+  booking: #{
+    id: 12,
+    eventType: #{ id: "consultation", name: "Консультация", duration: 30 },
+    guestName: "Иван Петров",
+    guestContact: "ivan@example.com"
+  }
+});
+
+@@example(CallCalendar.AdminDaySlots, #{
+  date: plainDate.fromISO("2026-08-18"),
+  slots: #[
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{
+      startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"),
+      status: CallCalendar.SlotStatus.booked,
+      booking: #{
+        id: 12,
+        eventType: #{ id: "consultation", name: "Консультация", duration: 30 },
+        guestName: "Иван Петров",
+        guestContact: "ivan@example.com"
+      }
+    },
+    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:00:00Z"), status: CallCalendar.SlotStatus.free }
+  ]
+});
+
+@@example(CallCalendar.AvailabilityResponse, #{ available: true });
