@@ -2,6 +2,22 @@
 
 Версия: 1.0
 
+## Артефакты проекта
+
+- `docs/api-contract.md` — человекочитаемый контракт (этот документ);
+- `main.tsp` — TypeSpec-спецификация (машинное описание API), находится в корне проекта.
+
+TypeSpec-спецификация — источник истины для API: она компилируется в OpenAPI.
+
+Запуск компиляции (требует Node.js ≥ 20 и установленных пакетов):
+
+```
+npm install --save-dev @typespec/compiler @typespec/http @typespec/openapi3
+npx tsp compile main.tsp --emit @typespec/openapi3
+```
+
+Результат — `tsp-output/@typespec/openapi3/openapi.yaml`.
+
 ## Общие положения
 
 - **Транспорт**: REST over HTTP, обмен JSON (`application/json`).
@@ -79,7 +95,7 @@ Body: { "time": "08:00", "eventTypeId": "consultation" }
 
 Ответы:
 - `200` — `{ "available": true }` либо `{ "available": false, "reason": "booked" | "out-of-window" | "out-of-hours" | "invalid-grid" | "already-passed" }`;
-- `404` — тип события не найден или дата вне окна.
+- `404` — тип события не найден.
 
 **`POST /guest/:date/booking`** — создать бронирование.
 
@@ -96,7 +112,8 @@ Body: { "time": "08:00", "eventTypeId": "consultation", "guestName": "Иван",
   ```
 - `404` — тип события не найден;
 - `409` — `{ "error": "Slot is already booked" }` (слот занят);
-- `422` — ошибки валидации (см. правила).
+- `422` — ошибки валидации (см. правила);
+- `400` — `{ "error": "Invalid request" }` (битые данные, неверный формат).
 
 ### Владелец
 
@@ -111,7 +128,7 @@ Body: { "id": "consultation", "name": "Консультация", "description":
 - `409` — `{ "error": "Event type with this id already exists" }` (id уже занят);
 - `422` — ошибки валидации.
 
-**`GET /admin/:date/`** — все слоты за день, все типы событий и брони без фильтра.
+**`GET /admin/:date/`** — все слоты за день, все типы событий и брони без фильтра. Ответ `404`, если дата вне окна 14 дней.
 
 ```
 200 → {

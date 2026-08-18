@@ -226,14 +226,14 @@ namespace Admin {
   @doc("Создать тип события.")
   op createEventType(
     @body body: EventTypeInput,
-  ): EventTypeCreated | ValidationError;
+  ): EventTypeCreated | ConflictError | ValidationError;
 
   @route("/admin/{date}")
   @get
   @doc("Все слоты за день со всеми типами и бронями.")
   op daySlots(
     @path date: plainDate,
-  ): AdminDaySlots;
+  ): AdminDaySlots | NotFoundError;
 
   @route("/admin")
   @get
