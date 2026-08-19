@@ -1,13 +1,13 @@
 import { Alert, Badge, Group, Skeleton, Stack, Table, Text, Title } from '@mantine/core';
-import { useAdminUpcoming } from '../../api/endpoints';
+import { useAdminMeetings } from '../../api/endpoints';
 import { formatDateTime, formatTime } from '../../lib/date';
 
 export function DashboardPage() {
-  const { data, isPending, isError, error } = useAdminUpcoming();
+  const { data, isPending, isError, error } = useAdminMeetings();
 
   return (
     <Stack gap="md">
-      <Title order={2}>Предстоящие встречи</Title>
+      <Title order={2}>Встречи</Title>
 
       {isPending && (
         <Stack gap="xs">
@@ -24,8 +24,8 @@ export function DashboardPage() {
       )}
 
       {data && data.bookings.length === 0 && (
-        <Alert color="gray" title="Нет предстоящих встреч">
-          Когда гость забронирует слот, он появится здесь.
+        <Alert color="gray" title="Нет встреч">
+          Встречи на сегодня и ближайшие дни появятся здесь.
         </Alert>
       )}
 

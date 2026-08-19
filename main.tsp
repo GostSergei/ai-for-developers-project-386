@@ -92,7 +92,7 @@ model AdminDaySlots {
   slots: AdminSlot[];
 }
 
-@doc("Список предстоящих встреч.")
+@doc("Список встреч: все брони начиная с начала сегодняшнего дня.")
 model BookingsList {
   bookings: Booking[];
 }
@@ -237,8 +237,8 @@ namespace Admin {
 
   @route("/admin")
   @get
-  @doc("Предстоящие встречи: все брони всех типов, startsAt >= now, по возрастанию.")
-  op upcoming(): BookingsList;
+  @doc("Встречи: все брони всех типов, начиная с начала сегодняшнего дня, по возрастанию.")
+  op meetings(): BookingsList;
 }
 
 // ---------- Examples (для Prism mock: реалистичная статичная выдача) ----------

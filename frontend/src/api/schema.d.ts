@@ -11,8 +11,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Предстоящие встречи: все брони всех типов, startsAt >= now, по возрастанию. */
-        get: operations["Admin_upcoming"];
+        /** @description Встречи: все брони всех типов, начиная с начала сегодняшнего дня, по возрастанию. */
+        get: operations["Admin_meetings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -252,7 +252,7 @@ export interface components {
             guestContact: string;
         };
         /**
-         * @description Список предстоящих встреч.
+         * @description Список встреч: все брони начиная с начала сегодняшнего дня.
          * @example {
          *       "bookings": [
          *         {
@@ -301,10 +301,94 @@ export interface components {
          *         },
          *         {
          *           "startsAt": "2026-08-18T08:30:00Z",
-         *           "status": "booked"
+         *           "status": "free"
          *         },
          *         {
          *           "startsAt": "2026-08-18T09:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T09:30:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T10:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T10:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T11:00:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T11:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T12:00:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T12:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T13:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T13:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T14:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T14:30:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T15:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T15:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T16:00:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T16:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T17:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T17:30:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T18:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T18:30:00Z",
+         *           "status": "booked"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T19:00:00Z",
+         *           "status": "free"
+         *         },
+         *         {
+         *           "startsAt": "2026-08-18T19:30:00Z",
          *           "status": "free"
          *         }
          *       ]
@@ -386,7 +470,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    Admin_upcoming: {
+    Admin_meetings: {
         parameters: {
             query?: never;
             header?: never;

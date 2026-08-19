@@ -121,7 +121,7 @@ def create_app(
     def admin_upcoming():
         store = app.state.store
         now = app.state.now_provider()
-        return BookingsList(bookings=services.get_upcoming(store, now))
+        return BookingsList(bookings=services.get_meetings(store, now))
 
     return app
 

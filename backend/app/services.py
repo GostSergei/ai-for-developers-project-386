@@ -261,8 +261,9 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
     )
 
 
-def get_upcoming(store: Store, now: datetime) -> list[Booking]:
+def get_meetings(store: Store, now: datetime) -> list[Booking]:
+    start_of_today = datetime.combine(now.date(), time.min)
     return sorted(
-        (booking for booking in store.bookings if booking.startsAt >= now),
+        (booking for booking in store.bookings if booking.startsAt >= start_of_today),
         key=lambda booking: booking.startsAt,
     )

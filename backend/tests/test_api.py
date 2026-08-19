@@ -468,27 +468,43 @@ def test_admin_upcoming_trailing_slash(client):
     assert len(response.json()["bookings"]) == 1
 
 
-def test_admin_upcoming_filters_past_bookings(client):
+def test_admin_upcoming_filters_out_past_days(client):
     create_event_type(client)
-    create_booking(client, time="13:00")
+    create_booking(client, time="14:00")
 
     store = client.app.state.store
-    past = client.app.state.now_provider()
+    booking_model = type(store.bookings[0])
+
     store.bookings.append(
-        type(store.bookings[0])(
+        booking_model(
             id=99,
             eventTypeId="consultation",
             eventTypeName="Консультация",
             duration=30,
-            guestName="Прошлое",
-            guestContact="past@example.com",
-            startsAt=past - timedelta(hours=1),
-            endsAt=past,
+            guestName="Сегодня-прошлое",
+            guestContact="today-past@example.com",
+            startsAt=datetime(2026, 8, 18, 9, 0),
+            endsAt=datetime(2026, 8, 18, 9, 30),
+        )
+    )
+    store.bookings.append(
+        booking_model(
+            id=100,
+            eventTypeId="consultation",
+            eventTypeName="Консультация",
+            duration=30,
+            guestName="Вчера",
+            guestContact="yesterday@example.com",
+            startsAt=datetime(2026, 8, 17, 18, 0),
+            endsAt=datetime(2026, 8, 17, 18, 30),
         )
     )
 
     response = client.get("/admin")
     assert response.status_code == 200
     bookings = response.json()["bookings"]
-    assert len(bookings) == 1
-    assert bookings[0]["guestName"] == "Иван Петров"
+    assert [b["guestName"] for b in bookings] == ["Сегодня-прошлое", "Иван Петров"]
+    assert [b["startsAt"] for b in bookings] == [
+        "2026-08-18T09:00:00",
+        "2026-08-18T14:00:00",
+    ]
