@@ -40,7 +40,7 @@ interface RequestOptions {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const url = new URL(`${API_BASE_URL}${path}`);
+  const url = new URL(path, API_BASE_URL || window.location.origin);
 
   if (options.query) {
     for (const [key, value] of Object.entries(options.query)) {

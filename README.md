@@ -41,6 +41,30 @@ npm run dev
 npm run mock   # Prism на порту 4010
 ```
 
+## Запуск через Docker
+
+Весь проект (собранный фронтенд + FastAPI-бэкенд) упакован в один образ: контейнер
+слушает один порт, задаваемый переменной окружения `PORT` (по умолчанию 8000), и
+раздаёт и UI, и API. Данные хранятся в Docker-томе `data`.
+
+```
+docker compose up --build
+```
+
+Откройте http://localhost:8000. Порт можно переопределить:
+
+```
+PORT=8080 docker compose up -d --build
+```
+
+Остановка:
+
+```
+docker compose down
+```
+
+Если нужно очистить и данные: `docker compose down -v`.
+
 ## Тесты
 
 - Бэкенд (юнит + API): `cd backend && .venv/bin/python -m pytest tests -q`
