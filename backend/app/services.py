@@ -120,12 +120,20 @@ def get_day_slots(store: Store, d: date, event_type_id: str, now: datetime) -> D
     if not is_within_window(d, now):
         raise HTTPException(404, {"error": "Date is out of booking window"})
 
+    work_end = datetime.combine(d, WORK_END)
     slots = []
     for cell in day_cells(d):
         if cell <= now:
             continue
-        status = "booked" if booking_for_cell(cell, store.bookings) else "free"
-        slots.append(Slot(startsAt=cell, status=status))
+        if booking_for_cell(cell, store.bookings) is not None:
+            slots.append(Slot(startsAt=cell, status="booked"))
+            continue
+        candidate_end = cell + timedelta(minutes=event_type.duration)
+        if candidate_end > work_end:
+            continue
+        if any(overlaps(existing, cell, candidate_end) for existing in store.bookings):
+            continue
+        slots.append(Slot(startsAt=cell, status="free"))
 
     return DaySlots(date=d, eventType=event_type, slots=slots)
 
