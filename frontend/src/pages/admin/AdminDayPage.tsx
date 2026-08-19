@@ -12,7 +12,7 @@ import {
 import { DatePicker } from '@mantine/dates';
 import { useAdminDaySlots } from '../../api/endpoints';
 import { isNotFoundError } from '../../api/client';
-import { buildBookingWindow, formatTime, todayKey } from '../../lib/date';
+import { buildBookingWindow, formatDateKey, formatTime, todayKey } from '../../lib/date';
 
 export function AdminDayPage() {
   const windowDates = useMemo(() => buildBookingWindow(), []);
@@ -33,6 +33,7 @@ export function AdminDayPage() {
         minDate={minDate}
         maxDate={maxDate}
         defaultDate={minDate}
+        getDayAriaLabel={(date) => formatDateKey(new Date(date))}
       />
 
       <Text fw={600} size="sm" c="dimmed">

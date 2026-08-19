@@ -134,7 +134,7 @@ export function BookingPage() {
                   minDate={minDate}
                   maxDate={maxDate}
                   defaultDate={minDate}
-                  getDayProps={(date) => ({ 'aria-label': date })}
+                  getDayAriaLabel={(date) => formatDateKey(new Date(date))}
                 />
               </Grid.Col>
 
