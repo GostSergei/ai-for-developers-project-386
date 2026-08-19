@@ -52,8 +52,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   const response = await fetch(url, {
     method: options.method ?? 'GET',
-    headers: options.body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      Accept: 'application/json',
+      ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    cache: 'no-store',
   });
 
   if (!response.ok) {

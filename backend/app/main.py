@@ -31,7 +31,7 @@ def _is_html_request(request: Request) -> bool:
 
 
 def _index_html_response() -> FileResponse:
-    return FileResponse(FRONTEND_DIST / "index.html")
+    return FileResponse(FRONTEND_DIST / "index.html", headers={"Vary": "Accept"})
 
 
 def create_app(
