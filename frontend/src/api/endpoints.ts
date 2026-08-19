@@ -30,7 +30,7 @@ export async function createBooking(date: string, body: BookingRequest): Promise
   return apiRequest<Booking>(`/guest/${date}/booking`, { method: 'POST', body });
 }
 
-export async function getAdminUpcoming(): Promise<BookingsList> {
+export async function getAdminMeetings(): Promise<BookingsList> {
   return apiRequest<BookingsList>('/admin');
 }
 
@@ -59,10 +59,10 @@ export function useGuestDaySlots(date: string | undefined, eventTypeId: string |
   });
 }
 
-export function useAdminUpcoming() {
+export function useAdminMeetings() {
   return useQuery({
-    queryKey: ['admin-upcoming'],
-    queryFn: getAdminUpcoming,
+    queryKey: ['admin-meetings'],
+    queryFn: getAdminMeetings,
   });
 }
 
@@ -86,7 +86,7 @@ export function useCreateBooking() {
     mutationFn: ({ date, body }: { date: string; body: BookingRequest }) => createBooking(date, body),
     onSuccess: (_booking, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['guest-slots', variables.date] });
-      void queryClient.invalidateQueries({ queryKey: ['admin-upcoming'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-meetings'] });
     },
   });
 }
@@ -97,7 +97,7 @@ export function useCreateEventType() {
     mutationFn: createEventType,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event-types'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin-upcoming'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-meetings'] });
     },
   });
 }

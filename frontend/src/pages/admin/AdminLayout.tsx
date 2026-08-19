@@ -2,7 +2,7 @@ import { Container, NavLink, Stack } from '@mantine/core';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const LINKS = [
-  { label: 'Предстоящие встречи', to: '/admin' },
+  { label: 'Встречи', to: '/admin' },
   { label: 'Слоты по дням', to: '/admin/day' },
   { label: 'Типы событий', to: '/admin/event-types' },
   { label: 'Новый тип события', to: '/admin/event-types/new' },

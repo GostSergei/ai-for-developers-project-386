@@ -266,8 +266,10 @@ const defs: HandlerDef[] = [
     method: 'get',
     path: '/admin',
     resolver: () => {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
       const bookings = getDb()
-        .bookings.filter((booking) => new Date(booking.startsAt).getTime() >= Date.now())
+        .bookings.filter((booking) => new Date(booking.startsAt).getTime() >= startOfToday.getTime())
         .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
       return json({ bookings });
     },

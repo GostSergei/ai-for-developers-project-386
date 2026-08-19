@@ -182,6 +182,29 @@ def test_guest_day_slots_long_booking_covers_all_cells(client):
     assert slots["2026-08-18T14:30:00"] == "free"
 
 
+def test_guest_day_slots_hourly_type_omits_tail(client):
+    create_event_type(client, event_type_id="meeting", duration=60, name="Встреча")
+    response = client.get("/guest/2026-08-18", params={"eventType": "meeting"})
+    assert response.status_code == 200
+    starts = [slot["startsAt"] for slot in response.json()["slots"]]
+    assert starts[-1] == "2026-08-18T19:00:00"
+    assert "2026-08-18T19:30:00" not in starts
+    assert all(slot["status"] == "free" for slot in response.json()["slots"])
+
+
+def test_guest_day_slots_hourly_type_skips_overlapping_cell(client):
+    create_event_type(client)
+    create_event_type(client, event_type_id="meeting", duration=60, name="Встреча")
+    create_booking(client, time="17:00")
+    response = client.get("/guest/2026-08-18", params={"eventType": "meeting"})
+    assert response.status_code == 200
+    slots = {slot["startsAt"]: slot["status"] for slot in response.json()["slots"]}
+    assert "2026-08-18T16:30:00" not in slots
+    assert slots["2026-08-18T16:00:00"] == "free"
+    assert slots["2026-08-18T17:00:00"] == "booked"
+    assert slots["2026-08-18T17:30:00"] == "free"
+
+
 # ---------- Availability ----------
 
 
@@ -445,27 +468,43 @@ def test_admin_upcoming_trailing_slash(client):
     assert len(response.json()["bookings"]) == 1
 
 
-def test_admin_upcoming_filters_past_bookings(client):
+def test_admin_upcoming_filters_out_past_days(client):
     create_event_type(client)
-    create_booking(client, time="13:00")
+    create_booking(client, time="14:00")
 
     store = client.app.state.store
-    past = client.app.state.now_provider()
+    booking_model = type(store.bookings[0])
+
     store.bookings.append(
-        type(store.bookings[0])(
+        booking_model(
             id=99,
             eventTypeId="consultation",
             eventTypeName="Консультация",
             duration=30,
-            guestName="Прошлое",
-            guestContact="past@example.com",
-            startsAt=past - timedelta(hours=1),
-            endsAt=past,
+            guestName="Сегодня-прошлое",
+            guestContact="today-past@example.com",
+            startsAt=datetime(2026, 8, 18, 9, 0),
+            endsAt=datetime(2026, 8, 18, 9, 30),
+        )
+    )
+    store.bookings.append(
+        booking_model(
+            id=100,
+            eventTypeId="consultation",
+            eventTypeName="Консультация",
+            duration=30,
+            guestName="Вчера",
+            guestContact="yesterday@example.com",
+            startsAt=datetime(2026, 8, 17, 18, 0),
+            endsAt=datetime(2026, 8, 17, 18, 30),
         )
     )
 
     response = client.get("/admin")
     assert response.status_code == 200
     bookings = response.json()["bookings"]
-    assert len(bookings) == 1
-    assert bookings[0]["guestName"] == "Иван Петров"
+    assert [b["guestName"] for b in bookings] == ["Сегодня-прошлое", "Иван Петров"]
+    assert [b["startsAt"] for b in bookings] == [
+        "2026-08-18T09:00:00",
+        "2026-08-18T14:00:00",
+    ]
