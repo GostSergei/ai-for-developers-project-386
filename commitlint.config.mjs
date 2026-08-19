@@ -4,7 +4,7 @@
  * (https://www.conventionalcommits.org/). Конфиг самодостаточен —
  * не требует установки @commitlint/config-conventional.
  */
-module.exports = {
+export default {
   rules: {
     'type-enum': [
       2,
