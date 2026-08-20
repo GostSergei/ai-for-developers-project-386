@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/GostSergei/ai-for-developers-project-386/compare/v1.0.0...v1.1.0) (2026-08-20)
+
+
+### Features
+
+* containerize app with Docker and compose, rework Makefile ([3334a99](https://github.com/GostSergei/ai-for-developers-project-386/commit/3334a9912912f9f3c822370f5694b6c2a5aa7978))
+
+
+### Bug Fixes
+
+* fix compose port mapping (container always on 8000, host PORT) ([6b1e072](https://github.com/GostSergei/ai-for-developers-project-386/commit/6b1e072ec98034b4b76b0d06f5c13c4bfdb269d4))
+* stop browser cache from serving HTML to API requests ([814c8d5](https://github.com/GostSergei/ai-for-developers-project-386/commit/814c8d5308525972ea3b65e8cccb682a2aaa2e91))
+
 ## 1.0.0 (2026-08-19)
 
 
