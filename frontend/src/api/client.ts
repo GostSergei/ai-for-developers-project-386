@@ -40,7 +40,7 @@ interface RequestOptions {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const url = new URL(`${API_BASE_URL}${path}`);
+  const url = new URL(path, API_BASE_URL || window.location.origin);
 
   if (options.query) {
     for (const [key, value] of Object.entries(options.query)) {
@@ -52,8 +52,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   const response = await fetch(url, {
     method: options.method ?? 'GET',
-    headers: options.body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      Accept: 'application/json',
+      ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    cache: 'no-store',
   });
 
   if (!response.ok) {

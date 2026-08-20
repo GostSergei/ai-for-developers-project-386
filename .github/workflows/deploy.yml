@@ -1,0 +1,54 @@
+name: Deploy to Railway (release)
+
+on:
+  push:
+    tags:
+      - "[0-9]*"
+
+permissions:
+  contents: write
+
+env:
+  RAILWAY_PROJECT_ID: 8ac18e2f-6d1c-42db-937b-9473c4349481
+  RAILWAY_SERVICE_ID: d15227ae-fa7c-44f3-b77e-1c4ffee7d23e
+  RAILWAY_ENVIRONMENT: production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up -p "$RAILWAY_PROJECT_ID" -e "$RAILWAY_ENVIRONMENT" -s "$RAILWAY_SERVICE_ID" -y
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+
+      - name: Resolve public URL
+        id: url
+        run: |
+          URL=$(railway domain list -p "$RAILWAY_PROJECT_ID" -e "$RAILWAY_ENVIRONMENT" -s "$RAILWAY_SERVICE_ID" --json \
+            | jq -r '.domains[0].domain')
+          echo "url=https://${URL}" >> "$GITHUB_OUTPUT"
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+
+      - name: Verify deployment
+        run: curl -fsS --max-time 120 "${{ steps.url.outputs.url }}/event-types" >/dev/null
+
+      - name: Add public URL to release notes
+        run: |
+          BODY=$(gh release view "$GITHUB_REF_NAME" --json body -q .body)
+          gh release edit "$GITHUB_REF_NAME" --notes "$BODY
+
+          Публичная ссылка: ${{ steps.url.outputs.url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,10 +1,11 @@
 import os
 from datetime import date, datetime
+from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import services
@@ -20,6 +21,17 @@ from app.schemas import (
     EventTypeInput,
 )
 from app.store import DEFAULT_DATA_FILE, Store
+
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "static"
+HAS_FRONTEND = FRONTEND_DIST.exists()
+
+
+def _is_html_request(request: Request) -> bool:
+    return "text/html" in request.headers.get("accept", "")
+
+
+def _index_html_response() -> FileResponse:
+    return FileResponse(FRONTEND_DIST / "index.html", headers={"Vary": "Accept"})
 
 
 def create_app(
@@ -102,10 +114,16 @@ def create_app(
         response_model=AdminDaySlots,
         response_model_exclude_none=True,
     )
-    def admin_day_slots(date: date):
+    def admin_day_slots(request: Request, date: str):
+        if HAS_FRONTEND and _is_html_request(request):
+            return _index_html_response()
+        try:
+            day = datetime.fromisoformat(date).date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid request")
         store = app.state.store
         now = app.state.now_provider()
-        return services.get_admin_day_slots(store, date, now)
+        return services.get_admin_day_slots(store, day, now)
 
     @app.get(
         "/admin",
@@ -118,10 +136,24 @@ def create_app(
         response_model_exclude_none=True,
         include_in_schema=False,
     )
-    def admin_upcoming():
+    def admin_upcoming(request: Request):
+        if HAS_FRONTEND and _is_html_request(request):
+            return _index_html_response()
         store = app.state.store
         now = app.state.now_provider()
         return BookingsList(bookings=services.get_meetings(store, now))
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa_fallback(request: Request, path: str):
+        if not HAS_FRONTEND:
+            raise HTTPException(status_code=404, detail="Not found")
+        if path:
+            candidate = (FRONTEND_DIST / path).resolve()
+            if candidate.is_file() and FRONTEND_DIST.resolve() in candidate.parents:
+                return FileResponse(candidate)
+        if _is_html_request(request) or path == "":
+            return _index_html_response()
+        raise HTTPException(status_code=404, detail="Not found")
 
     return app
 
