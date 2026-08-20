@@ -25,9 +25,31 @@ from app.store import DEFAULT_DATA_FILE, Store
 FRONTEND_DIST = Path(__file__).resolve().parent.parent / "static"
 HAS_FRONTEND = FRONTEND_DIST.exists()
 
+DEFAULT_EVENT_TYPES = [
+    EventType(
+        id="consultation",
+        name="Консультация",
+        description="Разбор проекта",
+        duration=30,
+    ),
+    EventType(
+        id="meeting",
+        name="Встреча",
+        description="Обычная встреча",
+        duration=60,
+    ),
+]
+
 
 def _is_html_request(request: Request) -> bool:
     return "text/html" in request.headers.get("accept", "")
+
+
+def _seed_default_event_types(store: Store) -> None:
+    if store.data_file is None or store.event_types:
+        return
+    for event_type in DEFAULT_EVENT_TYPES:
+        store.add_event_type(event_type)
 
 
 def _index_html_response() -> FileResponse:
@@ -42,6 +64,7 @@ def create_app(
     app.state.store = store or Store(
         data_file=os.environ.get("DATA_FILE", DEFAULT_DATA_FILE)
     )
+    _seed_default_event_types(app.state.store)
     app.state.now_provider = now_provider or datetime.now
 
     app.add_middleware(
