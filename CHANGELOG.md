@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/GostSergei/ai-for-developers-project-386/compare/v1.1.0...v1.2.0) (2026-08-20)
+
+
+### Features
+
+* seed default event types on first start ([20a9fbc](https://github.com/GostSergei/ai-for-developers-project-386/commit/20a9fbce10f2e05701852fedb55e744e9775376b))
+* seed default event types on first start ([020cc6a](https://github.com/GostSergei/ai-for-developers-project-386/commit/020cc6a5847cbf24fe47ee554e45e553c93bb767))
+
 ## [1.1.0](https://github.com/GostSergei/ai-for-developers-project-386/compare/v1.0.0...v1.1.0) (2026-08-20)
 
 
