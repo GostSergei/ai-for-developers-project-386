@@ -44,14 +44,15 @@ npm run mock   # Prism на порту 4010
 ## Запуск через Docker
 
 Весь проект (собранный фронтенд + FastAPI-бэкенд) упакован в один образ: контейнер
-слушает один порт, задаваемый переменной окружения `PORT` (по умолчанию 8000), и
-раздаёт и UI, и API. Данные хранятся в Docker-томе `data`.
+раздаёт и UI, и API. Внутри контейнера приложение всегда слушает порт 8000, а наружу
+пробрасывается порт из переменной окружения `PORT` (по умолчанию 8000). Данные
+хранятся в Docker-томе `data`.
 
 ```
 docker compose up --build
 ```
 
-Откройте http://localhost:8000. Порт можно переопределить:
+Откройте http://localhost:8000. Внешний порт можно переопределить:
 
 ```
 PORT=8080 docker compose up -d --build
@@ -64,6 +65,20 @@ docker compose down
 ```
 
 Если нужно очистить и данные: `docker compose down -v`.
+
+## Деплой
+
+Проект задеплоен на [Railway](https://railway.com) и доступен по публичной ссылке:
+
+**https://app-production-6006.up.railway.app**
+
+Приложение собирается из `Dockerfile` и слушает порт из переменной окружения `PORT`
+(на Railway задан `PORT=8000`, публичный домен пробрасывается на этот порт).
+
+Автодеплой по релизным тегам: `.github/workflows/deploy.yml` срабатывает на push
+тегов вида `1.0.1` (их создаёт release-please при мердже release-PR). Workflow
+деплоит через Railway CLI (`railway up`), проверяет работоспособность приложения
+по публичному URL и добавляет ссылку на задеплоенный сервис в notes GitHub Release.
 
 ## Тесты
 
@@ -100,6 +115,7 @@ npx playwright install chromium
 - `.github/workflows/commitlint.yml` — проверка Conventional Commits в PR.
 - `.github/workflows/release-please.yml` — автоматический release-PR и релизы
   на основе Conventional Commits.
+- `.github/workflows/deploy.yml` — деплой на Railway по релизным тегам (см. «Деплой»).
 
 ## Формат коммитов (Conventional Commits)
 
