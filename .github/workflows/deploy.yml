@@ -1,9 +1,7 @@
-name: Deploy to Railway (release)
+name: Deploy to Railway (manual)
 
 on:
-  push:
-    tags:
-      - "[0-9]*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -43,12 +41,3 @@ jobs:
 
       - name: Verify deployment
         run: curl -fsS --max-time 120 "${{ steps.url.outputs.url }}/event-types" >/dev/null
-
-      - name: Add public URL to release notes
-        run: |
-          BODY=$(gh release view "$GITHUB_REF_NAME" --json body -q .body)
-          gh release edit "$GITHUB_REF_NAME" --notes "$BODY
-
-          Публичная ссылка: ${{ steps.url.outputs.url }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

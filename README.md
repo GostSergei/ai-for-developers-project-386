@@ -75,10 +75,11 @@ docker compose down
 Приложение собирается из `Dockerfile` и слушает порт из переменной окружения `PORT`
 (на Railway задан `PORT=8000`, публичный домен пробрасывается на этот порт).
 
-Автодеплой по релизным тегам: `.github/workflows/deploy.yml` срабатывает на push
-тегов вида `1.0.1` (их создаёт release-please при мердже release-PR). Workflow
-деплоит через Railway CLI (`railway up`), проверяет работоспособность приложения
-по публичному URL и добавляет ссылку на задеплоенный сервис в notes GitHub Release.
+Автодеплой на релизах: `.github/workflows/release-please.yml` после создания
+релиза деплоит через Railway CLI (`railway up`), проверяет работоспособность
+приложения по публичному URL и добавляет ссылку на задеплоенный сервис в notes
+GitHub Release. Ручной деплой — `.github/workflows/deploy.yml` (кнопка
+«Run workflow» в Actions).
 
 ## Тесты
 
@@ -114,8 +115,8 @@ npx playwright install chromium
   vitest с компиляцией TypeSpec) и интеграционные e2e-тесты (Playwright).
 - `.github/workflows/commitlint.yml` — проверка Conventional Commits в PR.
 - `.github/workflows/release-please.yml` — автоматический release-PR и релизы
-  на основе Conventional Commits.
-- `.github/workflows/deploy.yml` — деплой на Railway по релизным тегам (см. «Деплой»).
+  на основе Conventional Commits, после релиза — деплой на Railway (см. «Деплой»).
+- `.github/workflows/deploy.yml` — ручной деплой на Railway (см. «Деплой»).
 
 ## Формат коммитов (Conventional Commits)
 
