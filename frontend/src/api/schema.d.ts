@@ -133,11 +133,11 @@ export interface components {
          *       "date": "2026-08-18",
          *       "slots": [
          *         {
-         *           "startsAt": "2026-08-18T08:00:00Z",
+         *           "startsAt": "2026-08-18T08:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T08:30:00Z",
+         *           "startsAt": "2026-08-18T08:30:00",
          *           "status": "booked",
          *           "booking": {
          *             "id": 12,
@@ -151,7 +151,7 @@ export interface components {
          *           }
          *         },
          *         {
-         *           "startsAt": "2026-08-18T09:00:00Z",
+         *           "startsAt": "2026-08-18T09:00:00",
          *           "status": "free"
          *         }
          *       ]
@@ -165,7 +165,7 @@ export interface components {
         /**
          * @description Слот с деталями брони (вид владельца).
          * @example {
-         *       "startsAt": "2026-08-18T08:30:00Z",
+         *       "startsAt": "2026-08-18T08:30:00",
          *       "status": "booked",
          *       "booking": {
          *         "id": 12,
@@ -180,8 +180,7 @@ export interface components {
          *     }
          */
         AdminSlot: {
-            /** Format: date-time */
-            startsAt: string;
+            startsAt: components["schemas"]["LocalDateTime"];
             status: components["schemas"]["SlotStatus"];
             booking?: components["schemas"]["BookingInfo"];
         };
@@ -191,6 +190,7 @@ export interface components {
         AvailabilityRequest: {
             /** @description Время начала, формат HH:MM. */
             time: string;
+            /** @description Идентификатор типа события, не более 50 символов. */
             eventTypeId: string;
         };
         /**
@@ -214,8 +214,8 @@ export interface components {
          *       "duration": 30,
          *       "guestName": "Иван Петров",
          *       "guestContact": "ivan@example.com",
-         *       "startsAt": "2026-08-25T08:00:00Z",
-         *       "endsAt": "2026-08-25T08:30:00Z"
+         *       "startsAt": "2026-08-25T08:00:00",
+         *       "endsAt": "2026-08-25T08:30:00"
          *     }
          */
         Booking: {
@@ -227,13 +227,9 @@ export interface components {
             duration: number;
             guestName: string;
             guestContact: string;
-            /** Format: date-time */
-            startsAt: string;
-            /**
-             * Format: date-time
-             * @description Вычисляется как startsAt + duration.
-             */
-            endsAt: string;
+            startsAt: components["schemas"]["LocalDateTime"];
+            /** @description Вычисляется как startsAt + duration. */
+            endsAt: components["schemas"]["LocalDateTime"];
         };
         /** @description Информация о брони внутри слота. */
         BookingInfo: {
@@ -247,8 +243,11 @@ export interface components {
         BookingRequest: {
             /** @description Время начала, формат HH:MM. */
             time: string;
+            /** @description Идентификатор типа события, не более 50 символов. */
             eventTypeId: string;
+            /** @description Имя гостя, не более 100 символов. */
             guestName: string;
+            /** @description Контакт гостя, не более 200 символов. */
             guestContact: string;
         };
         /**
@@ -262,8 +261,8 @@ export interface components {
          *           "duration": 30,
          *           "guestName": "Иван Петров",
          *           "guestContact": "ivan@example.com",
-         *           "startsAt": "2026-08-25T08:00:00Z",
-         *           "endsAt": "2026-08-25T08:30:00Z"
+         *           "startsAt": "2026-08-25T08:00:00",
+         *           "endsAt": "2026-08-25T08:30:00"
          *         },
          *         {
          *           "id": 13,
@@ -272,8 +271,8 @@ export interface components {
          *           "duration": 60,
          *           "guestName": "Мария Иванова",
          *           "guestContact": "maria@example.com",
-         *           "startsAt": "2026-09-02T10:00:00Z",
-         *           "endsAt": "2026-09-02T11:00:00Z"
+         *           "startsAt": "2026-09-02T10:00:00",
+         *           "endsAt": "2026-09-02T11:00:00"
          *         }
          *       ]
          *     }
@@ -296,99 +295,99 @@ export interface components {
          *       },
          *       "slots": [
          *         {
-         *           "startsAt": "2026-08-18T08:00:00Z",
+         *           "startsAt": "2026-08-18T08:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T08:30:00Z",
+         *           "startsAt": "2026-08-18T08:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T09:00:00Z",
+         *           "startsAt": "2026-08-18T09:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T09:30:00Z",
+         *           "startsAt": "2026-08-18T09:30:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T10:00:00Z",
+         *           "startsAt": "2026-08-18T10:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T10:30:00Z",
+         *           "startsAt": "2026-08-18T10:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T11:00:00Z",
+         *           "startsAt": "2026-08-18T11:00:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T11:30:00Z",
+         *           "startsAt": "2026-08-18T11:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T12:00:00Z",
+         *           "startsAt": "2026-08-18T12:00:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T12:30:00Z",
+         *           "startsAt": "2026-08-18T12:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T13:00:00Z",
+         *           "startsAt": "2026-08-18T13:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T13:30:00Z",
+         *           "startsAt": "2026-08-18T13:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T14:00:00Z",
+         *           "startsAt": "2026-08-18T14:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T14:30:00Z",
+         *           "startsAt": "2026-08-18T14:30:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T15:00:00Z",
+         *           "startsAt": "2026-08-18T15:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T15:30:00Z",
+         *           "startsAt": "2026-08-18T15:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T16:00:00Z",
+         *           "startsAt": "2026-08-18T16:00:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T16:30:00Z",
+         *           "startsAt": "2026-08-18T16:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T17:00:00Z",
+         *           "startsAt": "2026-08-18T17:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T17:30:00Z",
+         *           "startsAt": "2026-08-18T17:30:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T18:00:00Z",
+         *           "startsAt": "2026-08-18T18:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T18:30:00Z",
+         *           "startsAt": "2026-08-18T18:30:00",
          *           "status": "booked"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T19:00:00Z",
+         *           "startsAt": "2026-08-18T19:00:00",
          *           "status": "free"
          *         },
          *         {
-         *           "startsAt": "2026-08-18T19:30:00Z",
+         *           "startsAt": "2026-08-18T19:30:00",
          *           "status": "free"
          *         }
          *       ]
@@ -418,35 +417,39 @@ export interface components {
             description?: string;
             /**
              * Format: int32
-             * @description Длительность в минутах, кратна 30.
+             * @description Длительность в минутах, положительное число, кратное 30.
              */
             duration: number;
         };
         /** @description Тело запроса на создание типа события. */
         EventTypeInput: {
-            /** @description Уникальный идентификатор, задаётся владельцем. */
+            /** @description Уникальный идентификатор, задаётся владельцем, не более 50 символов. */
             id: string;
+            /** @description Название, не более 100 символов. */
             name: string;
+            /** @description Описание, не более 1000 символов. */
             description?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Длительность в минутах, положительное число, кратное 30.
+             */
             duration: number;
         };
+        /** @description Местное время сервера без часового пояса, ISO 8601 без смещения, например 2026-08-18T13:00:00. */
+        LocalDateTime: string;
         NotFoundError: {
             error: string;
         };
         /**
          * @description 30-минутная ячейка сетки.
          * @example {
-         *       "startsAt": "2026-08-18T08:00:00Z",
+         *       "startsAt": "2026-08-18T08:00:00",
          *       "status": "free"
          *     }
          */
         Slot: {
-            /**
-             * Format: date-time
-             * @description Начало ячейки, ISO 8601.
-             */
-            startsAt: string;
+            /** @description Начало ячейки, ISO 8601 без смещения (местное время сервера). */
+            startsAt: components["schemas"]["LocalDateTime"];
             status: components["schemas"]["SlotStatus"];
         };
         /**
@@ -512,6 +515,15 @@ export interface operations {
                     "application/json": components["schemas"]["EventType"];
                 };
             };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestError"];
+                };
+            };
             /** @description The request conflicts with the current state of the server. */
             409: {
                 headers: {
@@ -550,6 +562,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminDaySlots"];
+                };
+            };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestError"];
                 };
             };
             /** @description The server cannot find the requested resource. */
@@ -605,6 +626,15 @@ export interface operations {
                     "application/json": components["schemas"]["DaySlots"];
                 };
             };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestError"];
+                };
+            };
             /** @description The server cannot find the requested resource. */
             404: {
                 headers: {
@@ -638,6 +668,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+            /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestError"];
                 };
             };
             /** @description The server cannot find the requested resource. */

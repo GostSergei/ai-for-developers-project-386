@@ -7,28 +7,45 @@ namespace CallCalendar;
 
 // ---------- Shared models ----------
 
+@doc("Местное время сервера без часового пояса, ISO 8601 без смещения, например 2026-08-18T13:00:00.")
+@pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$")
+scalar LocalDateTime extends string;
+
 @doc("Тип события: метка события с длительностью.")
 model EventType {
   @doc("Задаётся владельцем, уникальная строка, не более 50 символов.")
+  @maxLength(50)
   id: string;
 
   @doc("Название, не более 100 символов.")
+  @maxLength(100)
   name: string;
 
   @doc("Описание, не более 1000 символов.")
+  @maxLength(1000)
   description?: string;
 
-  @doc("Длительность в минутах, кратна 30.")
+  @doc("Длительность в минутах, положительное число, кратное 30.")
+  @minValue(1)
   duration: int32;
 }
 
 @doc("Тело запроса на создание типа события.")
 model EventTypeInput {
-  @doc("Уникальный идентификатор, задаётся владельцем.")
+  @doc("Уникальный идентификатор, задаётся владельцем, не более 50 символов.")
+  @maxLength(50)
   id: string;
 
+  @doc("Название, не более 100 символов.")
+  @maxLength(100)
   name: string;
+
+  @doc("Описание, не более 1000 символов.")
+  @maxLength(1000)
   description?: string;
+
+  @doc("Длительность в минутах, положительное число, кратное 30.")
+  @minValue(1)
   duration: int32;
 }
 
@@ -43,14 +60,14 @@ enum SlotStatus {
 
 @doc("30-минутная ячейка сетки.")
 model Slot {
-  @doc("Начало ячейки, ISO 8601.")
-  startsAt: utcDateTime;
+  @doc("Начало ячейки, ISO 8601 без смещения (местное время сервера).")
+  startsAt: LocalDateTime;
   status: SlotStatus;
 }
 
 @doc("Слот с деталями брони (вид владельца).")
 model AdminSlot {
-  startsAt: utcDateTime;
+  startsAt: LocalDateTime;
   status: SlotStatus;
   booking?: BookingInfo;
 }
@@ -71,10 +88,10 @@ model Booking {
   duration: int32;
   guestName: string;
   guestContact: string;
-  startsAt: utcDateTime;
+  startsAt: LocalDateTime;
 
   @doc("Вычисляется как startsAt + duration.")
-  endsAt: utcDateTime;
+  endsAt: LocalDateTime;
 }
 
 // ---------- Request/response DTOs ----------
@@ -100,7 +117,12 @@ model BookingsList {
 @doc("Проверка доступности слота.")
 model AvailabilityRequest {
   @doc("Время начала, формат HH:MM.")
+  @maxLength(5)
+  @pattern("^([01]\\d|2[0-3]):[0-5]\\d$")
   time: string;
+
+  @doc("Идентификатор типа события, не более 50 символов.")
+  @maxLength(50)
   eventTypeId: string;
 }
 
@@ -129,9 +151,20 @@ model AvailabilityResponse {
 @doc("Создание бронирования.")
 model BookingRequest {
   @doc("Время начала, формат HH:MM.")
+  @maxLength(5)
+  @pattern("^([01]\\d|2[0-3]):[0-5]\\d$")
   time: string;
+
+  @doc("Идентификатор типа события, не более 50 символов.")
+  @maxLength(50)
   eventTypeId: string;
+
+  @doc("Имя гостя, не более 100 символов.")
+  @maxLength(100)
   guestName: string;
+
+  @doc("Контакт гостя, не более 200 символов.")
+  @maxLength(200)
   guestContact: string;
 }
 
@@ -198,7 +231,7 @@ namespace Guest {
   op daySlots(
     @path date: plainDate,
     @query eventType: string,
-  ): DaySlots | NotFoundError;
+  ): DaySlots | NotFoundError | BadRequestError;
 
   @route("/guest/{date}/availability")
   @post
@@ -206,7 +239,7 @@ namespace Guest {
   op availability(
     @path date: plainDate,
     @body body: AvailabilityRequest,
-  ): AvailabilityResponse | NotFoundError;
+  ): AvailabilityResponse | NotFoundError | BadRequestError;
 
   @route("/guest/{date}/booking")
   @post
@@ -226,14 +259,14 @@ namespace Admin {
   @doc("Создать тип события.")
   op createEventType(
     @body body: EventTypeInput,
-  ): EventTypeCreated | ConflictError | ValidationError;
+  ): EventTypeCreated | ConflictError | ValidationError | BadRequestError;
 
   @route("/admin/{date}")
   @get
   @doc("Все слоты за день со всеми типами и бронями.")
   op daySlots(
     @path date: plainDate,
-  ): AdminDaySlots | NotFoundError;
+  ): AdminDaySlots | NotFoundError | BadRequestError;
 
   @route("/admin")
   @get
@@ -251,7 +284,7 @@ namespace Admin {
 });
 
 @@example(CallCalendar.Slot, #{
-  startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"),
+  startsAt: "2026-08-18T08:00:00",
   status: CallCalendar.SlotStatus.free
 });
 
@@ -264,30 +297,30 @@ namespace Admin {
     duration: 30
   },
   slots: #[
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:30:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T10:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T10:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T11:00:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T11:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T12:00:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T12:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T13:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T13:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T14:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T14:30:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T15:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T15:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T16:00:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T16:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T17:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T17:30:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T18:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T18:30:00Z"), status: CallCalendar.SlotStatus.booked },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T19:00:00Z"), status: CallCalendar.SlotStatus.free },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T19:30:00Z"), status: CallCalendar.SlotStatus.free }
+    #{ startsAt: "2026-08-18T08:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T08:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T09:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T09:30:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T10:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T10:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T11:00:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T11:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T12:00:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T12:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T13:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T13:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T14:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T14:30:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T15:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T15:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T16:00:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T16:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T17:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T17:30:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T18:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T18:30:00", status: CallCalendar.SlotStatus.booked },
+    #{ startsAt: "2026-08-18T19:00:00", status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T19:30:00", status: CallCalendar.SlotStatus.free }
   ]
 });
 
@@ -298,8 +331,8 @@ namespace Admin {
   duration: 30,
   guestName: "Иван Петров",
   guestContact: "ivan@example.com",
-  startsAt: utcDateTime.fromISO("2026-08-25T08:00:00Z"),
-  endsAt: utcDateTime.fromISO("2026-08-25T08:30:00Z")
+  startsAt: "2026-08-25T08:00:00",
+  endsAt: "2026-08-25T08:30:00"
 });
 
 @@example(CallCalendar.BookingsList, #{
@@ -311,8 +344,8 @@ namespace Admin {
       duration: 30,
       guestName: "Иван Петров",
       guestContact: "ivan@example.com",
-      startsAt: utcDateTime.fromISO("2026-08-25T08:00:00Z"),
-      endsAt: utcDateTime.fromISO("2026-08-25T08:30:00Z")
+      startsAt: "2026-08-25T08:00:00",
+      endsAt: "2026-08-25T08:30:00"
     },
     #{
       id: 13,
@@ -321,14 +354,14 @@ namespace Admin {
       duration: 60,
       guestName: "Мария Иванова",
       guestContact: "maria@example.com",
-      startsAt: utcDateTime.fromISO("2026-09-02T10:00:00Z"),
-      endsAt: utcDateTime.fromISO("2026-09-02T11:00:00Z")
+      startsAt: "2026-09-02T10:00:00",
+      endsAt: "2026-09-02T11:00:00"
     }
   ]
 });
 
 @@example(CallCalendar.AdminSlot, #{
-  startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"),
+  startsAt: "2026-08-18T08:30:00",
   status: CallCalendar.SlotStatus.booked,
   booking: #{
     id: 12,
@@ -341,9 +374,9 @@ namespace Admin {
 @@example(CallCalendar.AdminDaySlots, #{
   date: plainDate.fromISO("2026-08-18"),
   slots: #[
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T08:00:00Z"), status: CallCalendar.SlotStatus.free },
+    #{ startsAt: "2026-08-18T08:00:00", status: CallCalendar.SlotStatus.free },
     #{
-      startsAt: utcDateTime.fromISO("2026-08-18T08:30:00Z"),
+      startsAt: "2026-08-18T08:30:00",
       status: CallCalendar.SlotStatus.booked,
       booking: #{
         id: 12,
@@ -352,7 +385,7 @@ namespace Admin {
         guestContact: "ivan@example.com"
       }
     },
-    #{ startsAt: utcDateTime.fromISO("2026-08-18T09:00:00Z"), status: CallCalendar.SlotStatus.free }
+    #{ startsAt: "2026-08-18T09:00:00", status: CallCalendar.SlotStatus.free }
   ]
 });
 

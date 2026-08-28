@@ -40,6 +40,8 @@ DEFAULT_EVENT_TYPES = [
     ),
 ]
 
+MAX_BODY_BYTES = 64 * 1024
+
 
 def _is_html_request(request: Request) -> bool:
     return "text/html" in request.headers.get("accept", "")
@@ -73,6 +75,13 @@ def create_app(
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def limit_body_size(request: Request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length and content_length.isdigit() and int(content_length) > MAX_BODY_BYTES:
+            return JSONResponse(status_code=400, content={"error": "Invalid request"})
+        return await call_next(request)
 
     @app.exception_handler(RequestValidationError)
     async def on_request_validation_error(request: Request, exc: RequestValidationError):

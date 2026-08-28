@@ -206,6 +206,19 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             errors.append(ValidationErrorItem(field=field, message="Field is required"))
         elif not value.strip():
             errors.append(ValidationErrorItem(field=field, message="Field must not be empty"))
+    if not errors:
+        if data.eventTypeId and len(data.eventTypeId) > 50:
+            errors.append(
+                ValidationErrorItem(field="eventTypeId", message="Must be at most 50 characters")
+            )
+        if data.guestName and len(data.guestName) > 100:
+            errors.append(
+                ValidationErrorItem(field="guestName", message="Must be at most 100 characters")
+            )
+        if data.guestContact and len(data.guestContact) > 200:
+            errors.append(
+                ValidationErrorItem(field="guestContact", message="Must be at most 200 characters")
+            )
     if errors:
         raise HTTPException(422, {"errors": [e.model_dump() for e in errors]})
 
@@ -243,11 +256,7 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             422, {"errors": [{"field": "time", "message": "Slot start time has already passed"}]}
         )
 
-    for existing in store.bookings:
-        if overlaps(existing, starts_at, ends_at):
-            raise HTTPException(409, {"error": "Slot is already booked"})
-
-    return store.add_booking(
+    booking = store.add_booking_if_available(
         Booking(
             id=store.next_booking_id,
             eventTypeId=event_type.id,
@@ -259,6 +268,9 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             endsAt=ends_at,
         )
     )
+    if booking is None:
+        raise HTTPException(409, {"error": "Slot is already booked"})
+    return booking
 
 
 def get_meetings(store: Store, now: datetime) -> list[Booking]:

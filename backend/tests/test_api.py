@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime, timedelta
 
 import pytest
@@ -304,6 +305,40 @@ def test_create_booking_slot_conflict(client):
     response = create_booking(client, time="13:00")
     assert response.status_code == 409
     assert response.json() == {"error": "Slot is already booked"}
+
+
+def test_concurrent_bookings_different_types_only_one_wins(client):
+    create_event_type(client)
+    create_event_type(client, event_type_id="meeting", duration=60, name="Встреча")
+
+    barrier = threading.Barrier(2)
+    statuses = []
+
+    def book(event_type_id):
+        with TestClient(client.app) as test_client:
+            barrier.wait()
+            response = test_client.post(
+                "/guest/2026-08-18/booking",
+                json={
+                    "time": "13:00",
+                    "eventTypeId": event_type_id,
+                    "guestName": "Иван",
+                    "guestContact": "ivan@example.com",
+                },
+            )
+            statuses.append(response.status_code)
+
+    threads = [
+        threading.Thread(target=book, args=("consultation",)),
+        threading.Thread(target=book, args=("meeting",)),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert sorted(statuses) == [201, 409]
+    assert len(client.app.state.store.bookings) == 1
 
 
 def test_create_booking_overlap_conflict(client):
