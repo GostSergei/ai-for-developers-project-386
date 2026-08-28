@@ -243,11 +243,7 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             422, {"errors": [{"field": "time", "message": "Slot start time has already passed"}]}
         )
 
-    for existing in store.bookings:
-        if overlaps(existing, starts_at, ends_at):
-            raise HTTPException(409, {"error": "Slot is already booked"})
-
-    return store.add_booking(
+    booking = store.add_booking_if_available(
         Booking(
             id=store.next_booking_id,
             eventTypeId=event_type.id,
@@ -259,6 +255,9 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             endsAt=ends_at,
         )
     )
+    if booking is None:
+        raise HTTPException(409, {"error": "Slot is already booked"})
+    return booking
 
 
 def get_meetings(store: Store, now: datetime) -> list[Booking]:

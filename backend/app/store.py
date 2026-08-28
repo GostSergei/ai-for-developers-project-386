@@ -74,3 +74,14 @@ class Store:
             self.bookings.append(booking)
             self._save()
         return booking
+
+    def add_booking_if_available(self, booking: Booking) -> Booking | None:
+        with self._lock:
+            for existing in self.bookings:
+                if existing.startsAt < booking.endsAt and booking.startsAt < existing.endsAt:
+                    return None
+            booking.id = self._next_booking_id
+            self._next_booking_id += 1
+            self.bookings.append(booking)
+            self._save()
+        return booking
