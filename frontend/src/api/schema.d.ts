@@ -190,6 +190,7 @@ export interface components {
         AvailabilityRequest: {
             /** @description Время начала, формат HH:MM. */
             time: string;
+            /** @description Идентификатор типа события, не более 50 символов. */
             eventTypeId: string;
         };
         /**
@@ -242,8 +243,11 @@ export interface components {
         BookingRequest: {
             /** @description Время начала, формат HH:MM. */
             time: string;
+            /** @description Идентификатор типа события, не более 50 символов. */
             eventTypeId: string;
+            /** @description Имя гостя, не более 100 символов. */
             guestName: string;
+            /** @description Контакт гостя, не более 200 символов. */
             guestContact: string;
         };
         /**
@@ -413,17 +417,22 @@ export interface components {
             description?: string;
             /**
              * Format: int32
-             * @description Длительность в минутах, кратна 30.
+             * @description Длительность в минутах, положительное число, кратное 30.
              */
             duration: number;
         };
         /** @description Тело запроса на создание типа события. */
         EventTypeInput: {
-            /** @description Уникальный идентификатор, задаётся владельцем. */
+            /** @description Уникальный идентификатор, задаётся владельцем, не более 50 символов. */
             id: string;
+            /** @description Название, не более 100 символов. */
             name: string;
+            /** @description Описание, не более 1000 символов. */
             description?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Длительность в минутах, положительное число, кратное 30.
+             */
             duration: number;
         };
         /** @description Местное время сервера без часового пояса, ISO 8601 без смещения, например 2026-08-18T13:00:00. */
