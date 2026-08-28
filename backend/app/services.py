@@ -206,6 +206,19 @@ def build_booking(store: Store, d: date, data: BookingRequest, now: datetime) ->
             errors.append(ValidationErrorItem(field=field, message="Field is required"))
         elif not value.strip():
             errors.append(ValidationErrorItem(field=field, message="Field must not be empty"))
+    if not errors:
+        if data.eventTypeId and len(data.eventTypeId) > 50:
+            errors.append(
+                ValidationErrorItem(field="eventTypeId", message="Must be at most 50 characters")
+            )
+        if data.guestName and len(data.guestName) > 100:
+            errors.append(
+                ValidationErrorItem(field="guestName", message="Must be at most 100 characters")
+            )
+        if data.guestContact and len(data.guestContact) > 200:
+            errors.append(
+                ValidationErrorItem(field="guestContact", message="Must be at most 200 characters")
+            )
     if errors:
         raise HTTPException(422, {"errors": [e.model_dump() for e in errors]})
 
