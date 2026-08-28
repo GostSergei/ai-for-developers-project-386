@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/GostSergei/ai-for-developers-project-386/compare/v1.2.0...v1.3.0) (2026-08-28)
+
+
+### Features
+
+* **api:** добавить ограничения длины и формата полей в контракт ([bbaf1dc](https://github.com/GostSergei/ai-for-developers-project-386/commit/bbaf1dcd97d9648a0bcde84c1737c8eb290b0105))
+* **backend:** ограничить длину полей брони и размер тела запроса ([cc0d7f9](https://github.com/GostSergei/ai-for-developers-project-386/commit/cc0d7f959bdfbb4b62a5ba3b9a5c782024398453))
+* **frontend:** зеркалить лимиты полей в MSW-хендлерах ([243f247](https://github.com/GostSergei/ai-for-developers-project-386/commit/243f2474fd245d9973cf1698cde4bf7dfa7bb66b))
+
+
+### Bug Fixes
+
+* **api:** зафиксировать локальную семантику времени вместо utcDateTime ([815c96f](https://github.com/GostSergei/ai-for-developers-project-386/commit/815c96f7441609d90376a76c0f9294080fc3aebf))
+* **api:** описать 400 BadRequestError у availability, day slots и создания типа события ([54e6c5a](https://github.com/GostSergei/ai-for-developers-project-386/commit/54e6c5aa7af307022bc6f3580fa9a4a6e690f1d3))
+* **backend:** сделать проверку пересечения и запись брони атомарными ([ed81eac](https://github.com/GostSergei/ai-for-developers-project-386/commit/ed81eac551100c57e3c0742296f7e605eb7d25be))
+* **docker:** запускать uvicorn как PID 1 для graceful shutdown ([ec45599](https://github.com/GostSergei/ai-for-developers-project-386/commit/ec45599f9f21c8ed3b9fc3610ce2f774c49e6d3b))
+* устранить расхождения контракта и гонку при бронировании ([79b427b](https://github.com/GostSergei/ai-for-developers-project-386/commit/79b427b23c2e239259a0e37cd1c308395a53f7e7))
+
 ## [1.2.0](https://github.com/GostSergei/ai-for-developers-project-386/compare/v1.1.0...v1.2.0) (2026-08-20)
 
 
