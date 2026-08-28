@@ -147,6 +147,17 @@ function validateBookingInput(body: Record<string, unknown>, dateKey: string) {
       errors.push({ field, message });
     }
   }
+  const maxLengths: Record<string, number> = {
+    time: 5,
+    eventTypeId: 50,
+    guestName: 100,
+    guestContact: 200,
+  };
+  for (const [field, maxLength] of Object.entries(maxLengths)) {
+    if (typeof body[field] === 'string' && (body[field] as string).length > maxLength) {
+      errors.push({ field, message: `Не более ${maxLength} символов` });
+    }
+  }
   if (errors.length === 0) {
     if (!isWithinBookingWindow(dateKey)) {
       errors.push({ field: 'date', message: 'Дата вне окна бронирования' });
