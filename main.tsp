@@ -198,7 +198,7 @@ namespace Guest {
   op daySlots(
     @path date: plainDate,
     @query eventType: string,
-  ): DaySlots | NotFoundError;
+  ): DaySlots | NotFoundError | BadRequestError;
 
   @route("/guest/{date}/availability")
   @post
@@ -206,7 +206,7 @@ namespace Guest {
   op availability(
     @path date: plainDate,
     @body body: AvailabilityRequest,
-  ): AvailabilityResponse | NotFoundError;
+  ): AvailabilityResponse | NotFoundError | BadRequestError;
 
   @route("/guest/{date}/booking")
   @post
@@ -226,14 +226,14 @@ namespace Admin {
   @doc("Создать тип события.")
   op createEventType(
     @body body: EventTypeInput,
-  ): EventTypeCreated | ConflictError | ValidationError;
+  ): EventTypeCreated | ConflictError | ValidationError | BadRequestError;
 
   @route("/admin/{date}")
   @get
   @doc("Все слоты за день со всеми типами и бронями.")
   op daySlots(
     @path date: plainDate,
-  ): AdminDaySlots | NotFoundError;
+  ): AdminDaySlots | NotFoundError | BadRequestError;
 
   @route("/admin")
   @get
