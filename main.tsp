@@ -14,25 +14,38 @@ scalar LocalDateTime extends string;
 @doc("Тип события: метка события с длительностью.")
 model EventType {
   @doc("Задаётся владельцем, уникальная строка, не более 50 символов.")
+  @maxLength(50)
   id: string;
 
   @doc("Название, не более 100 символов.")
+  @maxLength(100)
   name: string;
 
   @doc("Описание, не более 1000 символов.")
+  @maxLength(1000)
   description?: string;
 
-  @doc("Длительность в минутах, кратна 30.")
+  @doc("Длительность в минутах, положительное число, кратное 30.")
+  @minValue(1)
   duration: int32;
 }
 
 @doc("Тело запроса на создание типа события.")
 model EventTypeInput {
-  @doc("Уникальный идентификатор, задаётся владельцем.")
+  @doc("Уникальный идентификатор, задаётся владельцем, не более 50 символов.")
+  @maxLength(50)
   id: string;
 
+  @doc("Название, не более 100 символов.")
+  @maxLength(100)
   name: string;
+
+  @doc("Описание, не более 1000 символов.")
+  @maxLength(1000)
   description?: string;
+
+  @doc("Длительность в минутах, положительное число, кратное 30.")
+  @minValue(1)
   duration: int32;
 }
 
@@ -104,7 +117,12 @@ model BookingsList {
 @doc("Проверка доступности слота.")
 model AvailabilityRequest {
   @doc("Время начала, формат HH:MM.")
+  @maxLength(5)
+  @pattern("^([01]\\d|2[0-3]):[0-5]\\d$")
   time: string;
+
+  @doc("Идентификатор типа события, не более 50 символов.")
+  @maxLength(50)
   eventTypeId: string;
 }
 
@@ -133,9 +151,20 @@ model AvailabilityResponse {
 @doc("Создание бронирования.")
 model BookingRequest {
   @doc("Время начала, формат HH:MM.")
+  @maxLength(5)
+  @pattern("^([01]\\d|2[0-3]):[0-5]\\d$")
   time: string;
+
+  @doc("Идентификатор типа события, не более 50 символов.")
+  @maxLength(50)
   eventTypeId: string;
+
+  @doc("Имя гостя, не более 100 символов.")
+  @maxLength(100)
   guestName: string;
+
+  @doc("Контакт гостя, не более 200 символов.")
+  @maxLength(200)
   guestContact: string;
 }
 
